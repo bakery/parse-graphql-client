@@ -1,9 +1,18 @@
+/* eslint global-require: "off" */
+
 import { Lokka } from 'lokka';
-import HttpTransport from 'lokka-transport-http';
+import validator from 'validator';
+
+const HttpTransport = require('lokka-transport-http');
 
 class GraphQLClient {
-  constructor(url) {
+  constructor(url = '', Parse = require('parse/node')) {
+    if (!validator.isURL(url)) {
+      throw new Error('GraphQLClient requires a valid url');
+    }
+
     this.url = url;
+    this.Parse = Parse;
   }
 
   query(q) {
@@ -19,10 +28,11 @@ class GraphQLClient {
   }
 
   setupTransport() {
-    return getCurrentUser().then((currentUser) => {
-      const headers = {
-        Authorization: currentUser ? currentUser.getSessionToken() : null,
-      };
+    return this.Parse.User.currentAsync().then((currentUser) => {
+      const sessionToken = currentUser && currentUser.getSessionToken();
+      const headers = sessionToken ? {
+        Authorization: sessionToken,
+      } : {};
       return new HttpTransport(this.url, { headers });
     }, (error) => {
       throw new Error(`Parse Authentication error: ${error.message}`);
@@ -30,4 +40,4 @@ class GraphQLClient {
   }
 }
 
-export default GraphQLClient;
+module.exports = GraphQLClient;

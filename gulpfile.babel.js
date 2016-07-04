@@ -54,17 +54,18 @@ function lintGulpfile() {
 function build() {
   return gulp.src(path.join('src', config.entryFileName))
     .pipe(webpackStream({
+      target: 'node',
       output: {
         filename: `${exportFileName}.js`,
         libraryTarget: 'umd',
         library: config.mainVarName,
       },
-      // Add your own externals here. For instance,
-      // {
-      //   jquery: true
-      // }
-      // would externalize the `jquery` module.
-      externals: {},
+      // externals: [
+      //   {
+      //     fs: true,
+      //     file: true,
+      //   },
+      // ],
       module: {
         loaders: [
           { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
