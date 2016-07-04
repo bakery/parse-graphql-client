@@ -1,8 +1,9 @@
-module.exports = function(root) {
-  root = root ? root : global;
+/* eslint no-param-reassign: "off", prefer-arrow-callback: "off" */
+
+module.exports = function testSetup(root = global) {
   root.expect = root.chai.expect;
 
-  beforeEach(function() {
+  beforeEach(function be() {
     // Using these globally-available Sinon features is preferrable, as they're
     // automatically restored for you in the subsequent `afterEach`
     root.sandbox = root.sinon.sandbox.create();
@@ -14,7 +15,7 @@ module.exports = function(root) {
     root.useFakeServer = root.sandbox.useFakeServer.bind(root.sandbox);
   });
 
-  afterEach(function() {
+  afterEach(function ae() {
     delete root.stub;
     delete root.spy;
     root.sandbox.restore();

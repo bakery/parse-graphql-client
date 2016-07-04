@@ -1,3 +1,5 @@
+/* eslint no-underscore-dangle: "off", global-require: "off" */
+
 const gulp = require('gulp');
 const loadPlugins = require('gulp-load-plugins');
 const del = require('del');
@@ -6,7 +8,7 @@ const path = require('path');
 const isparta = require('isparta');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
-const source = require('vinyl-source-stream');
+require('vinyl-source-stream');
 
 const Instrumenter = isparta.Instrumenter;
 const mochaGlobals = require('./test/setup/.globals');
@@ -46,16 +48,16 @@ function lintTest() {
 }
 
 function lintGulpfile() {
-  return lint('gulpfile.js');
+  // return lint('gulpfile.js');
 }
 
 function build() {
   return gulp.src(path.join('src', config.entryFileName))
     .pipe(webpackStream({
       output: {
-        filename: exportFileName + '.js',
+        filename: `${exportFileName}.js`,
         libraryTarget: 'umd',
-        library: config.mainVarName
+        library: config.mainVarName,
       },
       // Add your own externals here. For instance,
       // {
@@ -65,14 +67,14 @@ function build() {
       externals: {},
       module: {
         loaders: [
-          { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' }
-        ]
+          { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
+        ],
       },
-      devtool: 'source-map'
+      devtool: 'source-map',
     }))
     .pipe(gulp.dest(destinationFolder))
     .pipe($.filter(['**', '!**/*.js.map']))
-    .pipe($.rename(exportFileName + '.min.js'))
+    .pipe($.rename(`${exportFileName}.min.js`))
     .pipe($.sourcemaps.init({ loadMaps: true }))
     .pipe($.uglify())
     .pipe($.sourcemaps.write('./'))
@@ -80,11 +82,11 @@ function build() {
 }
 
 function _mocha() {
-  return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], {read: false})
+  return gulp.src(['test/setup/node.js', 'test/unit/**/*.js'], { read: false })
     .pipe($.mocha({
       reporter: 'dot',
       globals: Object.keys(mochaGlobals.globals),
-      ignoreLeaks: false
+      ignoreLeaks: false,
     }));
 }
 
@@ -102,11 +104,7 @@ function coverage(done) {
   gulp.src(['src/**/*.js'])
     .pipe($.istanbul({ instrumenter: Instrumenter }))
     .pipe($.istanbul.hookRequire())
-    .on('finish', () => {
-      return test()
-        .pipe($.istanbul.writeReports())
-        .on('end', done);
-    });
+    .on('finish', () => test().pipe($.istanbul.writeReports()).on('end', done));
 }
 
 const watchFiles = ['src/**/*', 'test/**/*', 'package.json', '**/.eslintrc', '.jscsrc'];
@@ -124,7 +122,7 @@ function testBrowser() {
   const allFiles = ['./test/setup/browser.js'].concat(testFiles);
 
   // Lets us differentiate between the first build and subsequent builds
-  var firstBuild = true;
+  let firstBuild = true;
 
   // This empty stream might seem like a hack, but we need to specify all of our files through
   // the `entry` option of webpack. Otherwise, it ignores whatever file(s) are placed in here.
@@ -134,7 +132,7 @@ function testBrowser() {
       watch: true,
       entry: allFiles,
       output: {
-        filename: '__spec-build.js'
+        filename: '__spec-build.js',
       },
       // Externals isn't necessary here since these are for tests.
       module: {
@@ -142,19 +140,19 @@ function testBrowser() {
           // This is what allows us to author in future JavaScript
           { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
           // This allows the test setup scripts to load `package.json`
-          { test: /\.json$/, exclude: /node_modules/, loader: 'json-loader' }
-        ]
+          { test: /\.json$/, exclude: /node_modules/, loader: 'json-loader' },
+        ],
       },
       plugins: [
         // By default, webpack does `n=>n` compilation with entry files. This concatenates
         // them into a single chunk.
-        new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 })
+        new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
       ],
-      devtool: 'inline-source-map'
-    }, null, function() {
+      devtool: 'inline-source-map',
+    }, null, () => {
       if (firstBuild) {
-        $.livereload.listen({port: 35729, host: 'localhost', start: true});
-        var watcher = gulp.watch(watchFiles, ['lint']);
+        $.livereload.listen({ port: 35729, host: 'localhost', start: true });
+        gulp.watch(watchFiles, ['lint']);
       } else {
         $.livereload.reload('./tmp/__spec-build.js');
       }
