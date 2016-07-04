@@ -11,6 +11,7 @@ describe('GraphQLClient', () => {
   let currentUserAsyncStub;
   let GraphQLClient;
   let client;
+  let Parse;
 
   beforeEach(() => {
     httpTransportSpy = spy();
@@ -20,16 +21,17 @@ describe('GraphQLClient', () => {
         return sessionToken;
       },
     }));
+    Parse = {
+      User: {
+        currentAsync: currentUserAsyncStub,
+      },
+    };
 
     GraphQLClient = proxyquire('../../../src/client', {
-      'lokka-transport-http': httpTransportSpy,
-      'parse/node': {
-        User: {
-          currentAsync: currentUserAsyncStub,
-        },
-      },
-    });
-    client = new GraphQLClient(graphQLServerUrl);
+      'lokka-transport-http': { default: httpTransportSpy },
+    }).default;
+
+    client = new GraphQLClient(graphQLServerUrl, Parse);
   });
 
   afterEach(() => {
@@ -41,7 +43,7 @@ describe('GraphQLClient', () => {
       expect(GraphQLClient).to.be.ok;
     });
 
-    it('requires a valid url to be passed to constructor', () => {
+    it('requires a valid url + Parse instance to be passed to constructor', () => {
       function noParamFn() {
         return new GraphQLClient();
       }
@@ -50,8 +52,13 @@ describe('GraphQLClient', () => {
         return new GraphQLClient('this is not a valid url');
       }
 
+      function noParseInstanceFn() {
+        return new GraphQLClient(graphQLServerUrl);
+      }
+
       expect(noParamFn).to.throw(Error);
       expect(invalidURLFn).to.throw(Error);
+      expect(noParseInstanceFn).to.throw(Error);
     });
 
     it('has query method', () => {

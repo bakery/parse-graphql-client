@@ -3,11 +3,8 @@
 const gulp = require('gulp');
 const loadPlugins = require('gulp-load-plugins');
 const del = require('del');
-const glob = require('glob');
 const path = require('path');
 const isparta = require('isparta');
-const webpack = require('webpack');
-const webpackStream = require('webpack-stream');
 require('vinyl-source-stream');
 
 const Instrumenter = isparta.Instrumenter;
@@ -18,10 +15,8 @@ const manifest = require('./package.json');
 const $ = loadPlugins();
 
 // Gather the library data from `package.json`
-const config = manifest.babelBoilerplateOptions;
 const mainFile = manifest.main;
 const destinationFolder = path.dirname(mainFile);
-const exportFileName = path.basename(mainFile, path.extname(mainFile));
 
 function cleanDist(done) {
   del([destinationFolder]).then(() => done());
@@ -52,32 +47,9 @@ function lintGulpfile() {
 }
 
 function build() {
-  return gulp.src(path.join('src', config.entryFileName))
-    .pipe(webpackStream({
-      target: 'node',
-      output: {
-        filename: `${exportFileName}.js`,
-        libraryTarget: 'umd',
-        library: config.mainVarName,
-      },
-      // externals: [
-      //   {
-      //     fs: true,
-      //     file: true,
-      //   },
-      // ],
-      module: {
-        loaders: [
-          { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
-        ],
-      },
-      devtool: 'source-map',
-    }))
-    .pipe(gulp.dest(destinationFolder))
-    .pipe($.filter(['**', '!**/*.js.map']))
-    .pipe($.rename(`${exportFileName}.min.js`))
+  return gulp.src('src/**/*.js')
     .pipe($.sourcemaps.init({ loadMaps: true }))
-    .pipe($.uglify())
+    .pipe($.babel())
     .pipe($.sourcemaps.write('./'))
     .pipe(gulp.dest(destinationFolder));
 }
@@ -115,53 +87,6 @@ function watch() {
   gulp.watch(watchFiles, ['test']);
 }
 
-function testBrowser() {
-  // Our testing bundle is made up of our unit tests, which
-  // should individually load up pieces of our application.
-  // We also include the browser setup file.
-  const testFiles = glob.sync('./test/unit/**/*.js');
-  const allFiles = ['./test/setup/browser.js'].concat(testFiles);
-
-  // Lets us differentiate between the first build and subsequent builds
-  let firstBuild = true;
-
-  // This empty stream might seem like a hack, but we need to specify all of our files through
-  // the `entry` option of webpack. Otherwise, it ignores whatever file(s) are placed in here.
-  return gulp.src('')
-    .pipe($.plumber())
-    .pipe(webpackStream({
-      watch: true,
-      entry: allFiles,
-      output: {
-        filename: '__spec-build.js',
-      },
-      // Externals isn't necessary here since these are for tests.
-      module: {
-        loaders: [
-          // This is what allows us to author in future JavaScript
-          { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
-          // This allows the test setup scripts to load `package.json`
-          { test: /\.json$/, exclude: /node_modules/, loader: 'json-loader' },
-        ],
-      },
-      plugins: [
-        // By default, webpack does `n=>n` compilation with entry files. This concatenates
-        // them into a single chunk.
-        new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
-      ],
-      devtool: 'inline-source-map',
-    }, null, () => {
-      if (firstBuild) {
-        $.livereload.listen({ port: 35729, host: 'localhost', start: true });
-        gulp.watch(watchFiles, ['lint']);
-      } else {
-        $.livereload.reload('./tmp/__spec-build.js');
-      }
-      firstBuild = false;
-    }))
-    .pipe(gulp.dest('./tmp'));
-}
-
 // Remove the built files
 gulp.task('clean', cleanDist);
 
@@ -188,9 +113,6 @@ gulp.task('test', ['lint'], test);
 
 // Set up coverage and run tests
 gulp.task('coverage', ['lint'], coverage);
-
-// Set up a livereload environment for our spec runner `test/runner.html`
-gulp.task('test-browser', ['lint', 'clean-tmp'], testBrowser);
 
 // Run the headless unit tests as you make changes.
 gulp.task('watch', watch);

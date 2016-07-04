@@ -2,13 +2,19 @@
 
 import { Lokka } from 'lokka';
 import validator from 'validator';
-
-const HttpTransport = require('lokka-transport-http');
+import HttpTransport from 'lokka-transport-http';
 
 class GraphQLClient {
-  constructor(url = '', Parse = require('parse/node')) {
+  constructor(url, Parse) {
+    const looksLikeParse = Parse && Parse.User &&
+      typeof Parse.User.currentAsync === 'function';
+
     if (!validator.isURL(url)) {
       throw new Error('GraphQLClient requires a valid url');
+    }
+
+    if (!looksLikeParse) {
+      throw new Error('GraphQLClient reuires a valid Parse instance');
     }
 
     this.url = url;
@@ -40,4 +46,4 @@ class GraphQLClient {
   }
 }
 
-module.exports = GraphQLClient;
+export default GraphQLClient;
