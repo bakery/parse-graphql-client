@@ -57,5 +57,12 @@
   "babelBoilerplateOptions": {
     "entryFileName": "parse-graphql.js",
     "mainVarName": "index"
+  },
+  "dependencies": {
+    "express-graphql": "^0.5.3",
+    "graphql": "^0.6.0",
+    "lokka": "^1.7.0",
+    "lokka-transport-http": "^1.3.2",
+    "parse": "^1.8.5"
   }
 }
