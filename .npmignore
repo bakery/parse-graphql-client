@@ -32,3 +32,8 @@ tmp
 
 .babelrc
 src
+.editorconfig
+.eslintrc
+.travis.yml
+gulpfile.babel.js
+test
