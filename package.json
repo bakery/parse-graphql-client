@@ -1,7 +1,7 @@
 {
   "name": "parse-graphql-client",
-  "version": "0.1.0",
-  "description": "Tools for Parse Server + GraphQL",
+  "version": "0.2.0",
+  "description": "GraphQL client for Parse",
   "main": "dist/parse-graphql.js",
   "scripts": {
     "test": "gulp",
