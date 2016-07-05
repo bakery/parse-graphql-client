@@ -1,6 +1,6 @@
 {
   "name": "parse-graphql-client",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "GraphQL client for Parse",
   "main": "dist/parse-graphql.js",
   "scripts": {
@@ -13,15 +13,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/thebakeryio/parse-graphql.git"
+    "url": "https://github.com/thebakeryio/parse-graphql-client.git"
   },
   "keywords": [],
   "author": "hi@thebakery.io",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/thebakeryio/parse-graphql/issues"
+    "url": "https://github.com/thebakeryio/parse-graphql-client/issues"
   },
-  "homepage": "https://github.com/thebakeryio/parse-graphql",
+  "homepage": "https://github.com/thebakeryio/parse-graphql-client",
   "devDependencies": {
     "babel-core": "^6.3.26",
     "babel-loader": "^6.2.0",
