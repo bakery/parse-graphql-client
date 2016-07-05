@@ -5,3 +5,7 @@ engines:
     checks:
       import/no-unresolved:
         enabled: false
+ratings:
+   paths:
+   - "src/**/*.js"
+   - "test/**/*.js"
