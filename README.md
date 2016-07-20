@@ -9,8 +9,8 @@
 ## When to use
 
 - you are using Parse SDK (web or mobile) coupled with Parse Server 
-- you are using Graphql
-- you want to make sure your Graphql queries are authenticated using Parse authentication
+- you are using GraphQL
+- you want to make sure your GraphQL queries are authenticated using Parse authentication
 - [Recommended] you are also uing [parse-graphql-server](https://github.com/thebakeryio/parse-graphql-server) package  
 
 ## Quick start
@@ -51,7 +51,11 @@ return client.mutate(`
 });
 ```
 
-All resulting requests to your Graphql server will arrive with ```Authorization``` header set to current Parse session token. You can either take it from there, or use [parse-graphql-server](https://github.com/thebakeryio/parse-graphql-server) package to automate this even further.
+All resulting requests to your GraphQL server will arrive with ```Authorization``` header set to current Parse session token. You can either take it from there, or use [parse-graphql-server](https://github.com/thebakeryio/parse-graphql-server) package to automate this even further.
+
+## See it in action
+
+- [TodoMVC using React Native](https://github.com/thebakeryio/todomvc-react-native)
 
 ## Credits
 
